@@ -8,7 +8,6 @@ HARD_WORDS_FILE = "hard_words.csv"
 COLUMNS = ["section", "unit", "dutch", "english", "russian"]
 
 
-# --- Data Loading ---
 def load_words(file_path=EXCEL_FILE):
     """Loads words from the specified Excel or CSV file."""
     try:
@@ -26,9 +25,8 @@ def load_words(file_path=EXCEL_FILE):
         df.fillna("", inplace=True)
         return df
     except FileNotFoundError:
-        # This is okay if the hard_words file doesn't exist yet
         if file_path == HARD_WORDS_FILE:
-            return pd.DataFrame(columns=COLUMNS)  # Return empty dataframe
+            return pd.DataFrame(columns=COLUMNS)
         print(f"Error: The file '{file_path}' was not found.")
         return None
     except Exception as e:
@@ -39,12 +37,10 @@ def load_words(file_path=EXCEL_FILE):
 def save_hard_word(word):
     """Appends a word to the hard words CSV file."""
     df_to_append = pd.DataFrame([word])
-    # Write header only if file doesn't exist, otherwise append without header
     header = not os.path.exists(HARD_WORDS_FILE)
     df_to_append.to_csv(HARD_WORDS_FILE, mode="a", header=header, index=False)
 
 
-# --- Core Components ---
 def select_words_to_study(df):
     """Asks the user to select a unit and returns the corresponding dataframe."""
     all_units = sorted(df["unit"].unique())
@@ -67,7 +63,6 @@ def select_words_to_study(df):
             return None
 
 
-# --- Learning Modes ---
 def flashcards_mode(df):
     """Runs the flashcards learning mode."""
     print("\n--- Flashcards Mode ---")
@@ -167,7 +162,6 @@ def quiz_mode(df, is_hard_words_mode=False):
         print(f"You answered {(score / total) * 100:.2f}% correctly.")
 
 
-# --- Main Application Logic ---
 def main():
     """Main function to run the learning program."""
     words_df = load_words()
