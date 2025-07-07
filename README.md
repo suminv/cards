@@ -1,16 +1,18 @@
 # Language Learning Helper
 
-This is a simple command-line application built with Python to help you learn new words from a custom vocabulary list stored in an Excel file.
+This is a simple command-line application built with Python to help you learn new words from a custom vocabulary list.
 
-The application provides several modes to make learning effective and engaging.
+The application is now more modular and configurable, with a colorful and engaging user interface.
 
 ## Features
 
-- **Load Vocabulary from Excel**: Easily manage your word list in a `.xlsx` file.
+- **Load Vocabulary from Excel/CSV**: Easily manage your word list in a `.xlsx` or `.csv` file.
+- **Configurable File Paths**: Set the path to your word list in a separate configuration file, allowing you to store it anywhere, including cloud services like iCloud Drive.
 - **Flashcards Mode**: Review words in a classic flashcard format.
 - **Quiz Mode**: Test your knowledge by translating words.
-- **Practice Hard Words**: The app keeps track of words you get wrong in quizzes and lets you practice them separately.
-- **Dynamic Updates**: Any changes to your Excel file are reflected the next time you start the app.
+- **Practice Hard Words**: The app keeps track of words you get wrong and lets you practice them separately.
+- **Color-Coded Interface**: Enjoy a more readable and visually appealing experience in your terminal.
+- **Modular Code**: The code is split into logical files (`main.py`, `config.py`, `colors.py`) for better organization and maintainability.
 
 ## Setup
 
@@ -35,29 +37,44 @@ The application provides several modes to make learning effective and engaging.
     ```
     *(Note: If a `requirements.txt` file is not available, install the dependencies manually: `pip install pandas openpyxl`)*
 
-### 3. Prepare Your Word List
+4.  **Create the configuration file:**
+    Create a file named `config.py` in the same directory as `main.py`. See the **Configuration** section below for details.
 
-1.  Create an Excel file named `words.xlsx` in the same directory as the `main.py` script.
-2.  The file **must** contain the following columns in the first sheet:
-    - `section`
-    - `unit`
-    - `dutch`
-    - `english`
-    - `russian`
+## Configuration
 
-    You can add as many rows (words) as you like.
+Before running the application, you need to create a `config.py` file to tell the script where to find your words and what columns to expect.
+
+1.  Create a file named `config.py`.
+2.  Copy and paste the following code into it, adjusting the `EXCEL_FILE` path to point to your vocabulary file.
+
+### Example `config.py`
+
+```python
+# Path to your vocabulary file. Can be an Excel (.xlsx) or CSV (.csv) file.
+# This example shows a path to a file in iCloud Drive.
+EXCEL_FILE = "path to your vocabulary file"
+
+# Name of the file where words you get wrong will be saved.
+HARD_WORDS_FILE = "hard_words.csv"
+
+# The columns your vocabulary file must contain.
+COLUMNS = ["section", "unit", "dutch", "english", "russian"]
+```
+
+Your vocabulary file (e.g., `duolingo.xlsx`) **must** contain the columns specified in the `COLUMNS` list.
 
 ## How to Run
 
-1.  Make sure your virtual environment is activated.
-2.  Run the main script from your terminal:
+1.  Make sure your `config.py` file is set up correctly.
+2.  Make sure your virtual environment is activated.
+3.  Run the main script from your terminal:
     ```bash
     python main.py
     ```
 
 ## How to Use
 
-Once the application starts, you will see the main menu:
+Once the application starts, you will see the color-coded main menu:
 
 ```
 --- Main Menu ---
