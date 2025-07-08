@@ -8,9 +8,9 @@ def load_words(file_path=EXCEL_FILE):
     """Loads words from the specified Excel or CSV file."""
     try:
         if file_path.endswith(".xlsx"):
-            df = pd.read_excel(file_path)
+            df = pd.read_excel(file_path, dtype=str)
         elif file_path.endswith(".csv"):
-            df = pd.read_csv(file_path)
+            df = pd.read_csv(file_path, dtype=str)
         else:
             print(f"{TermColors.FAIL}Error: Unsupported file format for {file_path}{TermColors.ENDC}")
             return None
