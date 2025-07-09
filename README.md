@@ -25,6 +25,9 @@ The application is now more modular and configurable, with a colorful and engagi
 ### 2. Installation
 
 1.  **Clone the repository or download the files.**
+    ```bash
+    git clone https://github.com/suminv/cards.git
+    ```
 
 2.  **Create and activate a virtual environment:**
     ```bash
@@ -61,7 +64,7 @@ HARD_WORDS_FILE = "hard_words.csv"
 COLUMNS = ["section", "unit", "dutch", "english", "russian"]
 ```
 
-Your vocabulary file (e.g., `duolingo.xlsx`) **must** contain the columns specified in the `COLUMNS` list.
+Your vocabulary file (e.g., `filename.xlsx`) **must** contain the columns specified in the `COLUMNS` list.
 
 ## How to Run
 
