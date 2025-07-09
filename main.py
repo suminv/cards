@@ -1,8 +1,10 @@
 import pandas as pd
 import random
 import os
+from datetime import datetime
 from config import EXCEL_FILE, HARD_WORDS_FILE, COLUMNS
 from colors import TermColors
+from utils import check_answer
 
 def load_words(file_path=EXCEL_FILE):
     """Loads words from the specified Excel or CSV file."""
@@ -22,6 +24,8 @@ def load_words(file_path=EXCEL_FILE):
         return df
     except FileNotFoundError:
         if file_path == HARD_WORDS_FILE:
+            # If the hard words file doesn't exist, return an empty DataFrame.
+            # The columns will be created when the first hard word is saved.
             return pd.DataFrame(columns=COLUMNS)
         print(f"{TermColors.FAIL}Error: The file '{file_path}' was not found.{TermColors.ENDC}")
         return None
@@ -31,10 +35,32 @@ def load_words(file_path=EXCEL_FILE):
 
 
 def save_hard_word(word):
-    """Appends a word to the hard words CSV file."""
-    df_to_append = pd.DataFrame([word])
-    header = not os.path.exists(HARD_WORDS_FILE)
-    df_to_append.to_csv(HARD_WORDS_FILE, mode="a", header=header, index=False)
+    """Checks for duplicates and appends a word with a timestamp to the hard words CSV file."""
+    # Define the columns that uniquely identify a word.
+    identifier_cols = [col for col in COLUMNS if col not in ['section', 'unit']]
+
+    try:
+        hard_words_df = pd.read_csv(HARD_WORDS_FILE, dtype=str)
+        hard_words_df.fillna("", inplace=True)
+    except FileNotFoundError:
+        hard_words_df = pd.DataFrame()
+
+    # Create a DataFrame for the new word to check against the existing ones
+    new_word_df = pd.DataFrame([word])
+
+    is_duplicate = False
+    if not hard_words_df.empty:
+        # Perform a merge to see if a row with the same identifiers already exists
+        merged_df = pd.merge(hard_words_df, new_word_df, on=identifier_cols)
+        if not merged_df.empty:
+            is_duplicate = True
+
+    if not is_duplicate:
+        word_to_save = word.copy()
+        word_to_save['date_added'] = datetime.now().strftime('%Y-%m-%d')
+        df_to_append = pd.DataFrame([word_to_save])
+        header = not os.path.exists(HARD_WORDS_FILE)
+        df_to_append.to_csv(HARD_WORDS_FILE, mode='a', header=header, index=False)
 
 
 def select_words_to_study(df):
@@ -141,8 +167,14 @@ def quiz_mode(df, is_hard_words_mode=False):
         if user_answer.lower() == "q":
             break
 
-        if user_answer.strip().lower() == correct_answer.strip().lower():
+        is_perfect_match = user_answer.strip().lower() == correct_answer.strip().lower()
+
+        if is_perfect_match:
             print(f"{TermColors.OKGREEN}Correct!{TermColors.ENDC}")
+            score += 1
+        elif check_answer(user_answer, correct_answer):
+            print(f"{TermColors.WARNING}Correct!{TermColors.ENDC}")
+            print(f"{TermColors.WARNING}Correct answer: {correct_answer}{TermColors.ENDC}")
             score += 1
         else:
             print(f"{TermColors.FAIL}Incorrect. The correct answer is: {correct_answer}{TermColors.ENDC}")
@@ -190,4 +222,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

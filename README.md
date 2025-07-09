@@ -10,9 +10,10 @@ The application is now more modular and configurable, with a colorful and engagi
 - **Configurable File Paths**: Set the path to your word list in a separate configuration file, allowing you to store it anywhere, including cloud services like iCloud Drive.
 - **Flashcards Mode**: Review words in a classic flashcard format.
 - **Quiz Mode**: Test your knowledge by translating words.
+- **Intelligent Answer Checking**: In quiz mode, the app tolerates small typos and spelling mistakes, giving you credit for answers that are "close enough".
 - **Practice Hard Words**: The app keeps track of words you get wrong and lets you practice them separately.
 - **Color-Coded Interface**: Enjoy a more readable and visually appealing experience in your terminal.
-- **Modular Code**: The code is split into logical files (`main.py`, `config.py`, `colors.py`) for better organization and maintainability.
+- **Modular Code**: The code is split into logical files (`main.py`, `config.py`, `colors.py`, `utils.py`) for better organization and maintainability.
 
 ## Setup
 
@@ -100,11 +101,15 @@ Once the application starts, you will see the color-coded main menu:
     1.  Choose a `unit` of words for the quiz.
     2.  Select the language you want to translate **from** and **to**.
     3.  The app will show you a word and ask for the translation.
-    4.  Type your answer and press `Enter`. The app will tell you if you were correct.
-    5.  If your answer is incorrect, the word will be automatically added to your `hard_words.csv` file for later practice.
-    6.  At the end of the quiz, you will see your final score.
+    4.  Type your answer and press `Enter`.
+    5.  The app will check your answer intelligently:
+        - **Perfect Match**: `Correct!` is shown in green.
+        - **Close Match (with typo)**: `Correct!` is shown in yellow, and the proper spelling is displayed for you to review.
+        - **Incorrect Match**: The correct answer is shown in red.
+    6.  If your answer is incorrect, the word will be automatically added to your `hard_words.csv` file for later practice.
+    7.  At the end of the quiz, you will see your final score.
 
 ### Practice Hard Words
 
 - **Purpose**: To focus specifically on the words you find difficult.
-- **How it works**: This mode is identical to the **Quiz Mode**, but it only uses words from the `hard_words.csv` file that is automatically generated during quizzes.
+- **How it works**: This mode is identical to the **Quiz Mode**, but it only uses words from the `hard_words.csv` file that is automatically generated during quizzes. The same intelligent answer checking applies here.
