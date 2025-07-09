@@ -48,14 +48,10 @@ def select_words_to_study(df):
     if unit_choice.lower() == "all":
         return df
     else:
-        try:
-            chosen_unit = int(unit_choice)
-            if chosen_unit not in all_units:
-                print(f"{TermColors.FAIL}Invalid unit number.{TermColors.ENDC}")
-                return None
-            return df[df["unit"] == chosen_unit]
-        except ValueError:
-            print(f"{TermColors.FAIL}Invalid input. Please enter a number or 'all'.{TermColors.ENDC}")
+        if unit_choice in all_units:
+            return df[df["unit"] == unit_choice]
+        else:
+            print(f"{TermColors.FAIL}Invalid unit number.{TermColors.ENDC}")
             return None
 
 
