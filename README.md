@@ -36,7 +36,6 @@ The application is now more modular and configurable, with a colorful and engagi
     ```bash
     pip install -r requirements.txt
     ```
-    *(Note: If a `requirements.txt` file is not available, install the dependencies manually: `pip install pandas openpyxl`)*
 
 4.  **Create the configuration file:**
     Create a file named `config.py` in the same directory as `main.py`. See the **Configuration** section below for details.
