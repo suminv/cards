@@ -61,14 +61,13 @@ def save_hard_word(word):
     try:
         hard_words_df = pd.read_csv(HARD_WORDS_FILE, dtype=str)
         hard_words_df.fillna("", inplace=True)
-        # Ensure stat columns exist and are numeric
         if "correct_streak" not in hard_words_df.columns:
             hard_words_df["correct_streak"] = 0
         if "incorrect_count" not in hard_words_df.columns:
             hard_words_df["incorrect_count"] = 0
         if "is_active" not in hard_words_df.columns:
             hard_words_df["is_active"] = (
-                "True"  # Store as string to avoid mixed types with bool
+                "True"
             )
 
         hard_words_df["correct_streak"] = pd.to_numeric(hard_words_df["correct_streak"])
@@ -82,7 +81,6 @@ def save_hard_word(word):
             + ["date_added", "correct_streak", "incorrect_count", "is_active"]
         )
 
-    # Check if the word already exists
     mask = pd.Series([True] * len(hard_words_df))
     for col in identifier_cols:
         mask &= hard_words_df[col] == word[col]
@@ -90,15 +88,13 @@ def save_hard_word(word):
     existing_word_idx = hard_words_df[mask].index
 
     if not existing_word_idx.empty:
-        # Word exists: update stats
         idx = existing_word_idx[0]
         hard_words_df.loc[idx, "correct_streak"] = 0
         hard_words_df.loc[idx, "incorrect_count"] += 1
         hard_words_df.loc[idx, "is_active"] = (
-            "True"  # Reactivate if it was marked as learned
+            "True"
         )
     else:
-        # Word is new: add it
         new_word = word.copy()
         new_word["date_added"] = datetime.now().strftime("%Y-%m-%d")
         new_word["correct_streak"] = 0
@@ -123,7 +119,7 @@ def update_on_correct_answer(word):
         hard_words_df.fillna("", inplace=True)
         hard_words_df["correct_streak"] = pd.to_numeric(hard_words_df["correct_streak"])
     except (FileNotFoundError, KeyError):
-        return 0  # Should not happen if called correctly
+        return 0
 
     mask = pd.Series([True] * len(hard_words_df))
     for col in identifier_cols:
@@ -149,12 +145,11 @@ def mark_word_as_learned(word, streak_threshold=3):
     try:
         hard_words_df = pd.read_csv(HARD_WORDS_FILE, dtype=str)
         hard_words_df.fillna("", inplace=True)
-        # Ensure is_active column exists and is boolean
         if "is_active" not in hard_words_df.columns:
             hard_words_df["is_active"] = "True"
 
     except FileNotFoundError:
-        return  # File doesn't exist, nothing to mark
+        return
 
     mask = pd.Series([True] * len(hard_words_df))
     for col in identifier_cols:
@@ -164,5 +159,5 @@ def mark_word_as_learned(word, streak_threshold=3):
 
     if not existing_word_idx.empty:
         idx = existing_word_idx[0]
-        hard_words_df.loc[idx, "is_active"] = "False"  # Mark as inactive
+        hard_words_df.loc[idx, "is_active"] = "False"
         hard_words_df.to_csv(HARD_WORDS_FILE, index=False)

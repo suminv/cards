@@ -127,11 +127,9 @@ def quiz_mode(df, is_hard_words_mode=False):
     if not is_hard_words_mode:
         study_df = select_words_to_study(df)
     else:
-        # In hard words mode, filter for active words
         if "is_active" in study_df.columns:
             study_df = study_df[study_df["is_active"] == "True"]
         else:
-            # If 'is_active' column doesn't exist, assume all are active for backward compatibility
             pass
     if study_df is None or study_df.empty:
         print(
@@ -207,7 +205,7 @@ def quiz_mode(df, is_hard_words_mode=False):
             print(
                 f"{TermColors.FAIL}Incorrect. The correct answer is: {correct_answer}{TermColors.ENDC}"
             )
-            save_hard_word(word) # Handles both normal and hard mode logic
+            save_hard_word(word)
 
     print(
         f"\n{TermColors.HEADER}--- Quiz Finished ---{TermColors.ENDC}\nYour final score: {score}/{total}"
