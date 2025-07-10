@@ -1,7 +1,11 @@
 import random
 from colors import TermColors
 from utils import check_answer
-from data_manager import save_hard_word
+from data_manager import (
+    save_hard_word,
+    update_on_correct_answer,
+    mark_word_as_learned,
+)
 from config import COLUMNS
 
 
@@ -102,6 +106,7 @@ def quiz_mode(df, is_hard_words_mode=False):
 
     The user selects the 'from' and 'to' languages for translation. It scores the user's
     answers and saves incorrectly answered words for later practice.
+    In 'Hard Words' mode, it tracks correct answer streaks and removes words that are learned.
 
     Args:
         df (pd.DataFrame): The DataFrame of words to be quizzed on.
@@ -110,14 +115,24 @@ def quiz_mode(df, is_hard_words_mode=False):
     """
     print(
         f"\n{TermColors.HEADER}--- Quiz Mode ---{TermColors.ENDC}"
-        + (
+        +
+        (
             f" {TermColors.WARNING}(Hard Words){TermColors.ENDC}"
             if is_hard_words_mode
             else ""
         )
     )
 
-    study_df = df if is_hard_words_mode else select_words_to_study(df)
+    study_df = df
+    if not is_hard_words_mode:
+        study_df = select_words_to_study(df)
+    else:
+        # In hard words mode, filter for active words
+        if "is_active" in study_df.columns:
+            study_df = study_df[study_df["is_active"] == "True"]
+        else:
+            # If 'is_active' column doesn't exist, assume all are active for backward compatibility
+            pass
     if study_df is None or study_df.empty:
         print(
             f"{TermColors.WARNING}No words to study. Returning to main menu.{TermColors.ENDC}"
@@ -170,23 +185,29 @@ def quiz_mode(df, is_hard_words_mode=False):
         if user_answer.lower() == "q":
             break
 
+        is_correct = check_answer(user_answer, correct_answer)
         is_perfect_match = user_answer.strip().lower() == correct_answer.strip().lower()
 
-        if is_perfect_match:
-            print(f"{TermColors.OKGREEN}Correct!{TermColors.ENDC}")
+        if is_correct:
+            if is_perfect_match:
+                print(f"{TermColors.OKGREEN}Correct!{TermColors.ENDC}")
+            else:
+                print(f"{TermColors.WARNING}Correct!{TermColors.ENDC}")
+                print(f"{TermColors.WARNING}Correct answer: {correct_answer}{TermColors.ENDC}")
             score += 1
-        elif check_answer(user_answer, correct_answer):
-            print(f"{TermColors.WARNING}Correct!{TermColors.ENDC}")
-            print(
-                f"{TermColors.WARNING}Correct answer: {correct_answer}{TermColors.ENDC}"
-            )
-            score += 1
+            if is_hard_words_mode:
+                new_streak = update_on_correct_answer(word)
+                if new_streak >= 3:
+                    print(
+                        f"{TermColors.OKCYAN}You've mastered ''{question_word}''! It will be removed from hard words.{TermColors.ENDC}"
+                    )
+                    mark_word_as_learned(word, streak_threshold=3)
+                    print(f"{TermColors.OKGREEN}Word '{question_word}' has been marked as learned!{TermColors.ENDC}")
         else:
             print(
                 f"{TermColors.FAIL}Incorrect. The correct answer is: {correct_answer}{TermColors.ENDC}"
             )
-            if not is_hard_words_mode:
-                save_hard_word(word)
+            save_hard_word(word) # Handles both normal and hard mode logic
 
     print(
         f"\n{TermColors.HEADER}--- Quiz Finished ---{TermColors.ENDC}\nYour final score: {score}/{total}"
