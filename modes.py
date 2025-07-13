@@ -11,32 +11,51 @@ from config import COLUMNS
 
 def select_words_to_study(df):
     """
-    Prompts the user to select a unit of words to study and returns a filtered DataFrame.
+    Prompts the user to select a section and then a unit of words to study,
+    and returns a filtered DataFrame.
 
     Args:
         df (pd.DataFrame): The DataFrame containing all words.
 
     Returns:
-        pd.DataFrame or None: A DataFrame filtered by the selected unit, or the original
-                              DataFrame if 'all' is selected. Returns None for invalid input.
+        pd.DataFrame or None: A DataFrame filtered by the selected criteria,
+                              or the original DataFrame if 'all' is selected.
+                              Returns None for invalid input.
     """
-    all_units = sorted(df["unit"].unique())
+    all_sections = sorted(df["section"].unique())
     print(
-        f"{TermColors.OKCYAN}Available units:{TermColors.ENDC}",
+        f"{TermColors.OKCYAN}Available sections:{TermColors.ENDC}",
+        ", ".join(map(str, all_sections)),
+    )
+    section_choice = input(
+        f"{TermColors.BOLD}Enter a section number to study or type 'all' to study all sections: {TermColors.ENDC}"
+    )
+
+    if section_choice.lower() == "all":
+        return df
+
+    if section_choice not in all_sections:
+        print(f"{TermColors.FAIL}Invalid section number.{TermColors.ENDC}")
+        return None
+
+    section_df = df[df["section"] == section_choice]
+    all_units = sorted(section_df["unit"].unique())
+
+    print(
+        f"{TermColors.OKCYAN}Available units in section {section_choice}:{TermColors.ENDC}",
         ", ".join(map(str, all_units)),
     )
     unit_choice = input(
-        f"{TermColors.BOLD}Enter a unit number to study or type 'all' to study all units: {TermColors.ENDC}"
+        f"{TermColors.BOLD}Enter a unit number to study or type 'all' to study all units in this section: {TermColors.ENDC}"
     )
 
     if unit_choice.lower() == "all":
-        return df
+        return section_df
+    elif unit_choice in all_units:
+        return section_df[section_df["unit"] == unit_choice]
     else:
-        if unit_choice in all_units:
-            return df[df["unit"] == unit_choice]
-        else:
-            print(f"{TermColors.FAIL}Invalid unit number.{TermColors.ENDC}")
-            return None
+        print(f"{TermColors.FAIL}Invalid unit number.{TermColors.ENDC}")
+        return None
 
 
 def flashcards_mode(df):
